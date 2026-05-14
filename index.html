@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bolão da Seleção 2025</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --green:#00a550;--yellow:#ffcc00;--blue:#003087;
+    --bg:#0a1628;--surface:#0f1f3d;--surface2:#162747;
+    --text:#f0f4ff;--muted:#7a8aaa;--border:#1e3060;
+    --radius:10px;
+  }
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+  /* HEADER */
+  header{
+    background:linear-gradient(135deg,#003087 0%,#001a4f 100%);
+    border-bottom:3px solid var(--yellow);
+    padding:2rem 1.5rem 1.5rem;text-align:center;position:relative;overflow:hidden;
+  }
+  header::before{
+    content:'';position:absolute;inset:0;
+    background:repeating-linear-gradient(45deg,transparent,transparent 20px,rgba(255,204,0,0.03) 20px,rgba(255,204,0,0.03) 40px);
+  }
+  .flag-strip{display:flex;justify-content:center;gap:3px;margin-bottom:1rem}
+  .flag-strip span{display:block;width:28px;height:6px;border-radius:2px}
+  .flag-strip .g{background:#00a550}.flag-strip .y{background:#ffcc00}.flag-strip .b{background:#003087}
+  h1{font-family:'Bebas Neue',sans-serif;font-size:3rem;letter-spacing:2px;color:var(--yellow);position:relative}
+  h1 span{color:#fff}
+  .subtitle{font-size:.85rem;color:#a0b0d0;margin-top:.4rem;letter-spacing:1px;text-transform:uppercase;position:relative}
+  .badge{display:inline-block;background:var(--yellow);color:#001a4f;font-family:'DM Mono',monospace;font-size:.7rem;font-weight:500;padding:.2rem .7rem;border-radius:20px;margin-top:.5rem;letter-spacing:.5px;position:relative}
+
+  /* TABS */
+  .tabs{display:flex;border-bottom:1px solid var(--border);background:var(--surface)}
+  .tab{flex:1;padding:.9rem;text-align:center;cursor:pointer;font-size:.75rem;font-weight:500;color:var(--muted);transition:all .2s;border-bottom:2px solid transparent;letter-spacing:.5px;text-transform:uppercase}
+  .tab:hover{color:var(--text);background:var(--surface2)}
+  .tab.active{color:var(--yellow);border-bottom-color:var(--yellow);background:var(--surface2)}
+
+  main{max-width:900px;margin:0 auto;padding:1.5rem}
+  .screen{display:none}
+  .screen.active{display:block}
+
+  /* FORMS */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;margin-bottom:1.5rem}
+  .card h2{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--yellow);margin-bottom:1.5rem;letter-spacing:1px}
+  .form-row{margin-bottom:1rem}
+  label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:.4rem;letter-spacing:.5px;text-transform:uppercase}
+  input[type=text]{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:.7rem 1rem;border-radius:8px;font-size:.95rem;font-family:'DM Sans',sans-serif;transition:border-color .2s}
+  input[type=text]:focus{outline:none;border-color:var(--yellow)}
+
+  /* PLAYER GRID */
+  .section-label{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--yellow);letter-spacing:2px;text-transform:uppercase;margin:1.5rem 0 .8rem;display:flex;align-items:center;gap:.5rem}
+  .section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+  .player-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.5rem}
+  .player-item{display:flex;align-items:center;gap:.6rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.6rem .8rem;cursor:pointer;transition:all .15s;user-select:none}
+  .player-item:hover{border-color:var(--yellow);background:#1a2d50}
+  .player-item.selected{border-color:#00a550;background:#1e2e10}
+  .player-item.selected .check{background:#00a550;border-color:#00a550}
+  .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;font-size:11px}
+  .player-name{font-size:.85rem;font-weight:500;flex:1}
+  .player-club{font-size:.72rem;color:var(--muted)}
+
+  /* COUNTER BAR */
+  .counter-bar{position:sticky;bottom:0;background:var(--surface);border-top:2px solid var(--yellow);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+  .counter-info{display:flex;align-items:center;gap:.8rem}
+  .counter-num{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:var(--yellow);line-height:1}
+  .counter-label{font-size:.8rem;color:var(--muted);line-height:1.3}
+
+  /* BUTTONS */
+  .btn{background:var(--yellow);color:#001a4f;font-weight:700;padding:.7rem 1.8rem;border:none;border-radius:8px;cursor:pointer;font-size:.9rem;font-family:'DM Sans',sans-serif;transition:all .2s;letter-spacing:.5px}
+  .btn:hover:not(:disabled){background:#ffe033;transform:translateY(-1px)}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+  .btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
+  .btn-ghost:hover{border-color:var(--text);color:var(--text);background:transparent;transform:none}
+  .btn-green{background:#00a550;color:#fff}
+  .btn-green:hover:not(:disabled){background:#00c060}
+  .btn-red{background:#c0392b;color:#fff}
+  .btn-red:hover{background:#e74c3c;transform:none}
+
+  /* ENTRIES */
+  .entry-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:1rem}
+  .entry-header{display:flex;align-items:center;gap:1rem;margin-bottom:1rem}
+  .avatar{width:42px;height:42px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--yellow);flex-shrink:0}
+  .entry-name{font-weight:600;font-size:1rem}
+  .entry-date{font-size:.75rem;color:var(--muted)}
+  .entry-picks{display:flex;flex-wrap:wrap;gap:.35rem}
+  .pick-tag{background:var(--surface2);border:1px solid var(--border);font-size:.72rem;padding:.2rem .5rem;border-radius:4px;color:var(--text)}
+  .pick-tag.hit{background:#0d2b15;border-color:#00a550;color:#00e870}
+  .pick-tag.miss{opacity:.35}
+  .score-badge{margin-left:auto;font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:var(--yellow)}
+
+  /* RANKING */
+  .ranking-list{display:flex;flex-direction:column;gap:.75rem}
+  .rank-item{display:flex;align-items:center;gap:1rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.25rem}
+  .rank-item:first-child{border-color:var(--yellow);background:#1a1600}
+  .rank-item:nth-child(2){border-color:#aaa;background:#131622}
+  .rank-item:nth-child(3){border-color:#c97000;background:#150e00}
+  .rank-pos{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;width:36px;text-align:center;flex-shrink:0}
+  .rank-item:first-child .rank-pos{color:var(--yellow)}
+  .rank-item:nth-child(2) .rank-pos{color:#ccc}
+  .rank-item:nth-child(3) .rank-pos{color:#c97000}
+  .rank-name{flex:1;font-weight:500}
+  .rank-score{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--yellow)}
+  .rank-detail{font-size:.75rem;color:var(--muted)}
+
+  /* STATES */
+  .alert{background:#1a0e0e;border:1px solid #c0392b;color:#f1948a;padding:.8rem 1rem;border-radius:8px;font-size:.85rem;margin-bottom:1rem}
+  .success-msg{background:#0d2b15;border:1px solid #00a550;color:#82e0aa;padding:.8rem 1rem;border-radius:8px;font-size:.85rem;margin-bottom:1rem}
+  .empty{text-align:center;padding:3rem;color:var(--muted);line-height:2}
+  .loading{text-align:center;padding:2rem;color:var(--muted);font-family:'DM Mono',monospace;font-size:.85rem;letter-spacing:1px}
+  .loading::after{content:'';animation:dots 1.2s infinite}
+  @keyframes dots{0%{content:''}33%{content:'.'}66%{content:'..'}100%{content:'...'}}
+
+  .info-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:1.5rem}
+  .info-box p{color:var(--muted);font-size:.9rem;line-height:1.6}
+  .info-box strong{color:var(--text)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="flag-strip">
+    <span class="g"></span><span class="g"></span><span class="g"></span><span class="g"></span>
+    <span class="y"></span><span class="y"></span>
+    <span class="b"></span><span class="b"></span><span class="b"></span><span class="b"></span>
+  </div>
+  <h1>Bolão <span>Seleção</span></h1>
+  <p class="subtitle">Convocação Brasileira 2025</p>
+  <span class="badge">Escolha 26 de 55 jogadores</span>
+</header>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('register',this)">✏️ Participar</div>
+  <div class="tab" onclick="showTab('entries',this)">👥 Palpites</div>
+  <div class="tab" onclick="showTab('gabarito',this)">⭐ Gabarito</div>
+  <div class="tab" onclick="showTab('ranking',this)">🏆 Ranking</div>
+</div>
+
+<main>
+
+  <!-- REGISTER -->
+  <div id="screen-register" class="screen active">
+    <div class="card">
+      <h2>Seu Palpite</h2>
+      <div id="msg-register"></div>
+      <div class="form-row">
+        <label>Seu nome</label>
+        <input type="text" id="participante-nome" placeholder="Ex: João Silva" maxlength="40">
+      </div>
+    </div>
+    <div id="player-list-container"></div>
+    <div class="counter-bar">
+      <div class="counter-info">
+        <div class="counter-num" id="pick-count">0</div>
+        <div class="counter-label">selecionados<br><span style="color:var(--text)">de 26</span></div>
+      </div>
+      <button class="btn" id="btn-submit" onclick="submitEntry()" disabled>Confirmar Palpite →</button>
+    </div>
+  </div>
+
+  <!-- ENTRIES -->
+  <div id="screen-entries" class="screen">
+    <div id="entries-container"><div class="loading">A carregar palpites</div></div>
+  </div>
+
+  <!-- GABARITO -->
+  <div id="screen-gabarito" class="screen">
+    <div class="info-box">
+      <p>Após a convocação oficial, o <strong>administrador</strong> marca aqui os 25 jogadores convocados. Os acertos de todos os palpites são recalculados automaticamente.</p>
+    </div>
+    <div id="msg-gabarito"></div>
+    <div id="gabarito-status"></div>
+    <div id="gabarito-list-container"></div>
+    <div class="counter-bar" id="gabarito-bar" style="display:none">
+      <div class="counter-info">
+        <div class="counter-num" id="gabarito-count">0</div>
+        <div class="counter-label">convocados<br><span style="color:var(--text)">de 25</span></div>
+      </div>
+      <button class="btn btn-green" id="btn-save-gabarito" onclick="saveGabarito()">💾 Salvar Gabarito</button>
+    </div>
+  </div>
+
+  <!-- RANKING -->
+  <div id="screen-ranking" class="screen">
+    <div id="ranking-container"><div class="loading">A calcular ranking</div></div>
+  </div>
+
+</main>
+
+<script>
+const PLAYERS = [
+  {id:'ali',name:'Alisson',club:'Liverpool',pos:'GK'},
+  {id:'ben',name:'Bento',club:'Al-Nassr',pos:'GK'},
+  {id:'ede',name:'Ederson',club:'Fenerbahçe',pos:'GK'},
+  {id:'hug',name:'Hugo Souza',club:'Corinthians',pos:'GK'},
+  {id:'joh',name:'John',club:'Nottingham Forest',pos:'GK'},
+  {id:'wev',name:'Weverton',club:'Grêmio',pos:'GK'},
+  {id:'als',name:'Alex Sandro',club:'Flamengo',pos:'DF'},
+  {id:'alr',name:'Alexsandro Ribeiro',club:'Lille',pos:'DF'},
+  {id:'bre',name:'Bremer',club:'Juventus',pos:'DF'},
+  {id:'cau',name:'Carlos Augusto',club:'Inter de Milão',pos:'DF'},
+  {id:'dan',name:'Danilo',club:'Flamengo',pos:'DF'},
+  {id:'dou',name:'Douglas Santos',club:'Zenit',pos:'DF'},
+  {id:'fab',name:'Fabricio Bruno',club:'Cruzeiro',pos:'DF'},
+  {id:'gam',name:'Gabriel Magalhães',club:'Arsenal',pos:'DF'},
+  {id:'iba',name:'Ibañez',club:'Al-Ahli',pos:'DF'},
+  {id:'kai',name:'Kaiki Bruno',club:'Cruzeiro',pos:'DF'},
+  {id:'lor',name:'Leo Ortiz',club:'Flamengo',pos:'DF'},
+  {id:'lpe',name:'Leo Pereira',club:'Flamengo',pos:'DF'},
+  {id:'lju',name:'Luciano Juba',club:'Bahia',pos:'DF'},
+  {id:'mar',name:'Marquinhos',club:'PSG',pos:'DF'},
+  {id:'nat',name:'Natan',club:'Betis',pos:'DF'},
+  {id:'phe',name:'Paulo Henrique',club:'Vasco',pos:'DF'},
+  {id:'tsi',name:'Thiago Silva',club:'Porto',pos:'DF'},
+  {id:'vit',name:'Vitinho',club:'Botafogo',pos:'DF'},
+  {id:'vre',name:'Vitor Reis',club:'Girona',pos:'DF'},
+  {id:'wes',name:'Wesley',club:'Roma',pos:'DF'},
+  {id:'and',name:'Andreas Pereira',club:'Palmeiras',pos:'MF'},
+  {id:'asy',name:'Andrey Santos',club:'Chelsea',pos:'MF'},
+  {id:'bru',name:'Bruno Guimarães',club:'Newcastle',pos:'MF'},
+  {id:'cas',name:'Casemiro',club:'Manchester United',pos:'MF'},
+  {id:'dbo',name:'Danilo',club:'Botafogo',pos:'MF'},
+  {id:'eat',name:'Ederson',club:'Atalanta',pos:'MF'},
+  {id:'fbi',name:'Fabinho',club:'Al-Ittihad',pos:'MF'},
+  {id:'gsa',name:'Gabriel Sara',club:'Galatasaray',pos:'MF'},
+  {id:'ger',name:'Gerson',club:'Cruzeiro',pos:'MF'},
+  {id:'jgo',name:'João Gomes',club:'Wolverhampton',pos:'MF'},
+  {id:'lpq',name:'Lucas Paquetá',club:'Flamengo',pos:'MF'},
+  {id:'mpc',name:'Matheus Pereira',club:'Cruzeiro',pos:'MF'},
+  {id:'ant',name:'Antony',club:'Betis',pos:'FW'},
+  {id:'end',name:'Endrick',club:'Lyon',pos:'FW'},
+  {id:'gma',name:'Gabriel Martinelli',club:'Arsenal',pos:'FW'},
+  {id:'gje',name:'Gabriel Jesus',club:'Arsenal',pos:'FW'},
+  {id:'ije',name:'Igor Jesus',club:'Nottingham Forest',pos:'FW'},
+  {id:'ith',name:'Igor Thiago',club:'Brentford',pos:'FW'},
+  {id:'jpe',name:'João Pedro',club:'Chelsea',pos:'FW'},
+  {id:'kjo',name:'Kaio Jorge',club:'Cruzeiro',pos:'FW'},
+  {id:'lhe',name:'Luiz Henrique',club:'Zenit',pos:'FW'},
+  {id:'mcu',name:'Matheus Cunha',club:'Manchester United',pos:'FW'},
+  {id:'ney',name:'Neymar',club:'Santos',pos:'FW'},
+  {id:'ped',name:'Pedro',club:'Flamengo',pos:'FW'},
+  {id:'raf',name:'Raphinha',club:'Barcelona',pos:'FW'},
+  {id:'ray',name:'Rayan',club:'Bournemouth',pos:'FW'},
+  {id:'ric',name:'Richarlison',club:'Tottenham',pos:'FW'},
+  {id:'sli',name:'Samuel Lino',club:'Flamengo',pos:'FW'},
+  {id:'vin',name:'Vini Jr',club:'Real Madrid',pos:'FW'},
+];
+
+const SECTIONS = [
+  {label:'Goleiros',pos:'GK'},
+  {label:'Defensores',pos:'DF'},
+  {label:'Meio-campo',pos:'MF'},
+  {label:'Atacantes',pos:'FW'},
+];
+
+// ── State ──────────────────────────────────────────────
+let selected = new Set();
+let gabaritoSelected = new Set();
+let gabaritoMode = false;
+
+// ── API helpers ────────────────────────────────────────
+const api = {
+  async getEntries()  { const r = await fetch('/api/entries'); return r.json(); },
+  async addEntry(e)   { return fetch('/api/entries', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(e)}); },
+  async delEntry(id)  { return fetch('/api/entries', {method:'DELETE', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id})}); },
+  async getGabarito() { const r = await fetch('/api/gabarito'); return r.json(); },
+  async setGabarito(picks) { return fetch('/api/gabarito', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({picks})}); },
+  async delGabarito() { return fetch('/api/gabarito', {method:'DELETE'}); },
+};
+
+// ── Player list builder ────────────────────────────────
+function buildPlayerList(containerId, selSet, onToggle, limit) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  SECTIONS.forEach(sec => {
+    const players = PLAYERS.filter(p => p.pos === sec.pos);
+    const lbl = document.createElement('div');
+    lbl.className = 'section-label';
+    lbl.textContent = sec.label;
+    container.appendChild(lbl);
+    const grid = document.createElement('div');
+    grid.className = 'player-grid';
+    players.forEach(p => {
+      const item = document.createElement('div');
+      item.className = 'player-item' + (selSet.has(p.id) ? ' selected' : '');
+      item.id = 'pi-' + containerId + '-' + p.id;
+      item.innerHTML = `<div class="check">${selSet.has(p.id) ? '✓' : ''}</div><div><div class="player-name">${p.name}</div><div class="player-club">${p.club}</div></div>`;
+      item.onclick = () => onToggle(p.id, selSet, containerId, limit);
+      grid.appendChild(item);
+    });
+    container.appendChild(grid);
+  });
+}
+
+function togglePlayer(pid, selSet, containerId, limit) {
+  if (selSet.has(pid)) {
+    selSet.delete(pid);
+  } else {
+    if (selSet.size >= limit) {
+      showMsg(containerId === 'player-list-container' ? 'msg-register' : 'msg-gabarito', `Máximo de ${limit} jogadores!`, 'error');
+      return;
+    }
+    selSet.add(pid);
+  }
+  const el = document.getElementById('pi-' + containerId + '-' + pid);
+  if (el) {
+    el.className = 'player-item' + (selSet.has(pid) ? ' selected' : '');
+    el.querySelector('.check').textContent = selSet.has(pid) ? '✓' : '';
+  }
+  if (containerId === 'player-list-container') {
+    document.getElementById('pick-count').textContent = selSet.size;
+    document.getElementById('btn-submit').disabled = selSet.size !== 26;
+  } else {
+    document.getElementById('gabarito-count').textContent = selSet.size;
+  }
+}
+
+function showMsg(elId, msg, type) {
+  const el = document.getElementById(elId);
+  el.innerHTML = `<div class="${type === 'error' ? 'alert' : 'success-msg'}">${msg}</div>`;
+  setTimeout(() => { el.innerHTML = ''; }, 3500);
+}
+
+// ── Init register ──────────────────────────────────────
+buildPlayerList('player-list-container', selected, (pid) => togglePlayer(pid, selected, 'player-list-container', 26), 26);
+
+// ── Submit entry ───────────────────────────────────────
+async function submitEntry() {
+  const nome = document.getElementById('participante-nome').value.trim();
+  if (!nome) { showMsg('msg-register', 'Digite seu nome!', 'error'); return; }
+  if (selected.size !== 26) { showMsg('msg-register', 'Selecione exatamente 26 jogadores!', 'error'); return; }
+
+  const btn = document.getElementById('btn-submit');
+  btn.disabled = true;
+  btn.textContent = 'A enviar…';
+
+  const res = await api.addEntry({ nome, picks: [...selected] });
+
+  if (res.status === 409) {
+    showMsg('msg-register', 'Já existe um palpite com esse nome!', 'error');
+    btn.disabled = false;
+    btn.textContent = 'Confirmar Palpite →';
+    return;
+  }
+  if (!res.ok) {
+    showMsg('msg-register', 'Erro ao guardar. Tenta novamente.', 'error');
+    btn.disabled = false;
+    btn.textContent = 'Confirmar Palpite →';
+    return;
+  }
+
+  showMsg('msg-register', '✅ Palpite registado com sucesso!', 'success');
+  selected.clear();
+  buildPlayerList('player-list-container', selected, (pid) => togglePlayer(pid, selected, 'player-list-container', 26), 26);
+  document.getElementById('pick-count').textContent = '0';
+  btn.disabled = true;
+  btn.textContent = 'Confirmar Palpite →';
+  document.getElementById('participante-nome').value = '';
+}
+
+// ── Entries screen ─────────────────────────────────────
+async function renderEntries() {
+  const container = document.getElementById('entries-container');
+  container.innerHTML = '<div class="loading">A carregar palpites</div>';
+  const [entries, gabarito] = await Promise.all([api.getEntries(), api.getGabarito()]);
+
+  if (!entries.length) {
+    container.innerHTML = '<div class="empty">📋<br>Nenhum palpite registado ainda.</div>';
+    return;
+  }
+
+  let html = '';
+  entries.forEach(e => {
+    const score = gabarito ? e.picks.filter(p => gabarito.includes(p)).length : null;
+    html += `<div class="entry-card">
+      <div class="entry-header">
+        <div class="avatar">${e.nome[0].toUpperCase()}</div>
+        <div><div class="entry-name">${e.nome}</div><div class="entry-date">${e.data}</div></div>
+        ${score !== null ? `<div class="score-badge">${score}</div>` : ''}
+      </div>
+      <div class="entry-picks">
+        ${e.picks.map(pid => {
+          const p = PLAYERS.find(x => x.id === pid);
+          const hit = gabarito && gabarito.includes(pid);
+          const miss = gabarito && !gabarito.includes(pid);
+          return `<span class="pick-tag${hit ? ' hit' : miss ? ' miss' : ''}">${p ? p.name : pid}</span>`;
+        }).join('')}
+      </div>
+      <div style="margin-top:.75rem;display:flex;justify-content:flex-end">
+        <button class="btn btn-ghost" style="font-size:.75rem;padding:.4rem .8rem" onclick="deleteEntry(${e.id})">🗑 Remover</button>
+      </div>
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
+async function deleteEntry(id) {
+  if (!confirm('Remover este palpite?')) return;
+  await api.delEntry(id);
+  renderEntries();
+}
+
+// ── Gabarito screen ────────────────────────────────────
+async function renderGabaritoScreen() {
+  const gabarito = await api.getGabarito();
+  const statusEl = document.getElementById('gabarito-status');
+  const barEl = document.getElementById('gabarito-bar');
+
+  if (gabarito && !gabaritoMode) {
+    statusEl.innerHTML = `<div class="success-msg">✅ Gabarito definido com ${gabarito.length} jogadores.
+      <button class="btn btn-ghost" style="font-size:.75rem;padding:.3rem .7rem;margin-left:.5rem" onclick="editGabarito()">✏️ Editar</button>
+      <button class="btn btn-red" style="font-size:.75rem;padding:.3rem .7rem;margin-left:.4rem" onclick="clearGabarito()">🗑 Limpar</button>
+    </div>`;
+    document.getElementById('gabarito-list-container').innerHTML = '';
+    barEl.style.display = 'none';
+  } else {
+    statusEl.innerHTML = '';
+    gabaritoSelected = gabarito ? new Set(gabarito) : new Set();
+    buildPlayerList('gabarito-list-container', gabaritoSelected, (pid) => togglePlayer(pid, gabaritoSelected, 'gabarito-list-container', 25), 25);
+    document.getElementById('gabarito-count').textContent = gabaritoSelected.size;
+    barEl.style.display = 'flex';
+  }
+}
+
+function editGabarito() { gabaritoMode = true; renderGabaritoScreen(); }
+
+async function clearGabarito() {
+  if (!confirm('Limpar o gabarito?')) return;
+  await api.delGabarito();
+  gabaritoMode = false;
+  renderGabaritoScreen();
+}
+
+async function saveGabarito() {
+  if (gabaritoSelected.size !== 25) {
+    showMsg('msg-gabarito', 'Selecione exatamente 25 jogadores!', 'error');
+    return;
+  }
+  const btn = document.getElementById('btn-save-gabarito');
+  btn.disabled = true;
+  btn.textContent = 'A guardar…';
+  await api.setGabarito([...gabaritoSelected]);
+  gabaritoMode = false;
+  showMsg('msg-gabarito', '✅ Gabarito guardado!', 'success');
+  renderGabaritoScreen();
+  btn.disabled = false;
+  btn.textContent = '💾 Salvar Gabarito';
+}
+
+// ── Ranking screen ─────────────────────────────────────
+async function renderRanking() {
+  const container = document.getElementById('ranking-container');
+  container.innerHTML = '<div class="loading">A calcular ranking</div>';
+  const [entries, gabarito] = await Promise.all([api.getEntries(), api.getGabarito()]);
+
+  if (!gabarito) {
+    container.innerHTML = '<div class="empty">⏳<br>O gabarito ainda não foi definido.<br>Aguarda a convocação oficial!</div>';
+    return;
+  }
+  if (!entries.length) {
+    container.innerHTML = '<div class="empty">Nenhum palpite registado.</div>';
+    return;
+  }
+
+  const ranked = entries
+    .map(e => ({ ...e, score: e.picks.filter(p => gabarito.includes(p)).length }))
+    .sort((a, b) => b.score - a.score);
+
+  const medals = ['🥇', '🥈', '🥉'];
+  let html = '<div class="ranking-list">';
+  ranked.forEach((e, i) => {
+    html += `<div class="rank-item">
+      <div class="rank-pos">${medals[i] || i + 1}</div>
+      <div class="avatar">${e.nome[0].toUpperCase()}</div>
+      <div style="flex:1"><div class="rank-name">${e.nome}</div><div class="rank-detail">${e.data}</div></div>
+      <div><div class="rank-score">${e.score}</div><div class="rank-detail" style="text-align:right">acertos</div></div>
+    </div>`;
+  });
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+// ── Tab navigation ─────────────────────────────────────
+function showTab(tab, el) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('screen-' + tab).classList.add('active');
+  el.classList.add('active');
+  if (tab === 'entries') renderEntries();
+  if (tab === 'gabarito') { gabaritoMode = false; renderGabaritoScreen(); }
+  if (tab === 'ranking') renderRanking();
+}
+</script>
+</body>
+</html>
