@@ -2,12 +2,12 @@
   publish = "."
   functions = "netlify/functions"
 
-[functions]
-  node_bundler = "esbuild"
+[[redirects]]
+  from = "/api/entries"
+  to = "/.netlify/functions/entries"
+  status = 200
 
-[[headers]]
-  for = "/*"
-  [headers.values]
-    Access-Control-Allow-Origin = "*"
-    Access-Control-Allow-Methods = "GET, POST, DELETE, OPTIONS"
-    Access-Control-Allow-Headers = "Content-Type"
+[[redirects]]
+  from = "/api/gabarito"
+  to = "/.netlify/functions/gabarito"
+  status = 200

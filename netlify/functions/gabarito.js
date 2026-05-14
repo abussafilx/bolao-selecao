@@ -1,41 +1,46 @@
-import { getStore } from "@netlify/blobs";
+const { getStore } = require("@netlify/blobs");
 
 const STORE_NAME = "bolao";
 const GABARITO_KEY = "gabarito";
 
-export default async (req, context) => {
+exports.handler = async (event) => {
+  const headers = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Content-Type": "application/json",
+  };
+
+  if (event.httpMethod === "OPTIONS") {
+    return { statusCode: 204, headers, body: "" };
+  }
+
   const store = getStore(STORE_NAME);
 
-  if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204 });
-  }
-
-  // GET — return current gabarito
-  if (req.method === "GET") {
-    const raw = await store.get(GABARITO_KEY, { type: "json" });
-    return Response.json(raw || null);
-  }
-
-  // POST — save gabarito (25 picks)
-  if (req.method === "POST") {
-    const body = await req.json();
-    const { picks } = body;
-
-    if (!picks || picks.length !== 25) {
-      return Response.json({ error: "Selecione exatamente 25 jogadores." }, { status: 400 });
+  try {
+    if (event.httpMethod === "GET") {
+      const raw = await store.get(GABARITO_KEY, { type: "json" });
+      return { statusCode: 200, headers, body: JSON.stringify(raw || null) };
     }
 
-    await store.setJSON(GABARITO_KEY, picks);
-    return Response.json({ ok: true });
-  }
+    if (event.httpMethod === "POST") {
+      const { picks } = JSON.parse(event.body || "{}");
+      if (!Array.isArray(picks) || picks.length !== 25) {
+        return { statusCode: 400, headers, body: JSON.stringify({ error: "Selecione exatamente 25 jogadores." }) };
+      }
+      await store.setJSON(GABARITO_KEY, picks);
+      return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
+    }
 
-  // DELETE — clear gabarito
-  if (req.method === "DELETE") {
-    await store.delete(GABARITO_KEY);
-    return Response.json({ ok: true });
-  }
+    if (event.httpMethod === "DELETE") {
+      await store.delete(GABARITO_KEY);
+      return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
+    }
 
-  return Response.json({ error: "Method not allowed" }, { status: 405 });
+    return { statusCode: 405, headers, body: JSON.stringify({ error: "Method not allowed" }) };
+
+  } catch (err) {
+    console.error("gabarito error:", err);
+    return { statusCode: 500, headers, body: JSON.stringify({ error: err.message }) };
+  }
 };
-
-export const config = { path: "/api/gabarito" };
