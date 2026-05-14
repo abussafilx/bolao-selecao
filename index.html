@@ -168,19 +168,38 @@
 
   <!-- GABARITO -->
   <div id="screen-gabarito" class="screen">
-    <div class="info-box">
-      <p>Após a convocação oficial, o <strong>administrador</strong> marca aqui os 25 jogadores convocados. Os acertos de todos os palpites são recalculados automaticamente.</p>
-    </div>
-    <div id="msg-gabarito"></div>
-    <div id="gabarito-status"></div>
-    <div id="gabarito-list-container"></div>
-    <div class="counter-bar" id="gabarito-bar" style="display:none">
-      <div class="counter-info">
-        <div class="counter-num" id="gabarito-count">0</div>
-        <div class="counter-label">convocados<br><span style="color:var(--text)">de 25</span></div>
+
+    <!-- Tela de senha -->
+    <div id="gabarito-lock">
+      <div class="card" style="max-width:360px;margin:3rem auto;text-align:center">
+        <h2 style="margin-bottom:.5rem">🔒 Área Admin</h2>
+        <p style="color:var(--muted);font-size:.9rem;margin-bottom:1.5rem">Digite a senha para editar o gabarito.</p>
+        <div id="msg-senha"></div>
+        <div style="display:flex;gap:.5rem">
+          <input type="password" id="senha-input" placeholder="Senha" maxlength="20"
+            style="flex:1" onkeydown="if(event.key==='Enter')verificarSenha()">
+          <button class="btn" onclick="verificarSenha()">Entrar</button>
+        </div>
       </div>
-      <button class="btn btn-green" id="btn-save-gabarito" onclick="saveGabarito()">💾 Salvar Gabarito</button>
     </div>
+
+    <!-- Conteúdo admin (oculto até autenticar) -->
+    <div id="gabarito-content" style="display:none">
+      <div class="info-box">
+        <p>Após a convocação oficial, o <strong>administrador</strong> marca aqui os 25 jogadores convocados. Os acertos de todos os palpites são recalculados automaticamente.</p>
+      </div>
+      <div id="msg-gabarito"></div>
+      <div id="gabarito-status"></div>
+      <div id="gabarito-list-container"></div>
+      <div class="counter-bar" id="gabarito-bar" style="display:none">
+        <div class="counter-info">
+          <div class="counter-num" id="gabarito-count">0</div>
+          <div class="counter-label">convocados<br><span style="color:var(--text)">de 25</span></div>
+        </div>
+        <button class="btn btn-green" id="btn-save-gabarito" onclick="saveGabarito()">💾 Salvar Gabarito</button>
+      </div>
+    </div>
+
   </div>
 
   <!-- RANKING -->
@@ -260,6 +279,12 @@ const SECTIONS = [
 let selected = new Set();
 let gabaritoSelected = new Set();
 let gabaritoMode = false;
+let gabaritoAutenticado = false;
+
+// ── Utils ──────────────────────────────────────────────
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 
 // ── API helpers ────────────────────────────────────────
 const api = {
@@ -377,8 +402,8 @@ async function renderEntries() {
     const score = gabarito ? e.picks.filter(p => gabarito.includes(p)).length : null;
     html += `<div class="entry-card">
       <div class="entry-header">
-        <div class="avatar">${e.nome[0].toUpperCase()}</div>
-        <div><div class="entry-name">${e.nome}</div><div class="entry-date">${e.data}</div></div>
+        <div class="avatar">${esc(e.nome[0].toUpperCase())}</div>
+        <div><div class="entry-name">${esc(e.nome)}</div><div class="entry-date">${esc(e.data)}</div></div>
         ${score !== null ? `<div class="score-badge">${score}</div>` : ''}
       </div>
       <div class="entry-picks">
@@ -401,6 +426,22 @@ async function deleteEntry(id) {
   if (!confirm('Remover este palpite?')) return;
   await api.delEntry(id);
   renderEntries();
+}
+
+// ── Gabarito auth ──────────────────────────────────────
+function verificarSenha() {
+  const val = document.getElementById('senha-input').value;
+  if (val === '070988') {
+    gabaritoAutenticado = true;
+    document.getElementById('gabarito-lock').style.display = 'none';
+    document.getElementById('gabarito-content').style.display = 'block';
+    renderGabaritoScreen();
+  } else {
+    const el = document.getElementById('msg-senha');
+    el.innerHTML = '<div class="alert">Senha incorreta.</div>';
+    document.getElementById('senha-input').value = '';
+    setTimeout(() => { el.innerHTML = ''; }, 3000);
+  }
 }
 
 // ── Gabarito screen ────────────────────────────────────
@@ -474,8 +515,8 @@ async function renderRanking() {
   ranked.forEach((e, i) => {
     html += `<div class="rank-item">
       <div class="rank-pos">${medals[i] || i + 1}</div>
-      <div class="avatar">${e.nome[0].toUpperCase()}</div>
-      <div style="flex:1"><div class="rank-name">${e.nome}</div><div class="rank-detail">${e.data}</div></div>
+      <div class="avatar">${esc(e.nome[0].toUpperCase())}</div>
+      <div style="flex:1"><div class="rank-name">${esc(e.nome)}</div><div class="rank-detail">${esc(e.data)}</div></div>
       <div><div class="rank-score">${e.score}</div><div class="rank-detail" style="text-align:right">acertos</div></div>
     </div>`;
   });
@@ -490,7 +531,18 @@ function showTab(tab, el) {
   document.getElementById('screen-' + tab).classList.add('active');
   el.classList.add('active');
   if (tab === 'entries') renderEntries();
-  if (tab === 'gabarito') { gabaritoMode = false; renderGabaritoScreen(); }
+  if (tab === 'gabarito') {
+    gabaritoMode = false;
+    if (gabaritoAutenticado) {
+      document.getElementById('gabarito-lock').style.display = 'none';
+      document.getElementById('gabarito-content').style.display = 'block';
+      renderGabaritoScreen();
+    } else {
+      document.getElementById('gabarito-lock').style.display = 'block';
+      document.getElementById('gabarito-content').style.display = 'none';
+      document.getElementById('senha-input').value = '';
+    }
+  }
   if (tab === 'ranking') renderRanking();
 }
 </script>
