@@ -186,7 +186,7 @@
     <!-- Conteúdo admin (oculto até autenticar) -->
     <div id="gabarito-content" style="display:none">
       <div class="info-box">
-        <p>Após a convocação oficial, o <strong>administrador</strong> marca aqui os 25 jogadores convocados. Os acertos de todos os palpites são recalculados automaticamente.</p>
+        <p>Após a convocação oficial, o <strong>administrador</strong> marca aqui os 26 jogadores convocados. Os acertos de todos os palpites são recalculados automaticamente.</p>
       </div>
       <div id="msg-gabarito"></div>
       <div id="gabarito-status"></div>
@@ -194,7 +194,7 @@
       <div class="counter-bar" id="gabarito-bar" style="display:none">
         <div class="counter-info">
           <div class="counter-num" id="gabarito-count">0</div>
-          <div class="counter-label">convocados<br><span style="color:var(--text)">de 25</span></div>
+          <div class="counter-label">convocados<br><span style="color:var(--text)">de 26</span></div>
         </div>
         <button class="btn btn-green" id="btn-save-gabarito" onclick="saveGabarito()">💾 Salvar Gabarito</button>
       </div>
@@ -460,7 +460,7 @@ async function renderGabaritoScreen() {
   } else {
     statusEl.innerHTML = '';
     gabaritoSelected = gabarito ? new Set(gabarito) : new Set();
-    buildPlayerList('gabarito-list-container', gabaritoSelected, (pid) => togglePlayer(pid, gabaritoSelected, 'gabarito-list-container', 25), 25);
+    buildPlayerList('gabarito-list-container', gabaritoSelected, (pid) => togglePlayer(pid, gabaritoSelected, 'gabarito-list-container', 26), 26);
     document.getElementById('gabarito-count').textContent = gabaritoSelected.size;
     barEl.style.display = 'flex';
   }
@@ -476,8 +476,8 @@ async function clearGabarito() {
 }
 
 async function saveGabarito() {
-  if (gabaritoSelected.size !== 25) {
-    showMsg('msg-gabarito', 'Selecione exatamente 25 jogadores!', 'error');
+  if (gabaritoSelected.size !== 26) {
+    showMsg('msg-gabarito', 'Selecione exatamente 26 jogadores!', 'error');
     return;
   }
   const btn = document.getElementById('btn-save-gabarito');

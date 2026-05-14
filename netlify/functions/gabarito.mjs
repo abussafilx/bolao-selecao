@@ -25,8 +25,8 @@ export default async (req) => {
 
     if (req.method === "POST") {
       const { picks } = await req.json();
-      if (!Array.isArray(picks) || picks.length !== 25) {
-        return new Response(JSON.stringify({ error: "Selecione exatamente 25 jogadores." }), { status: 400, headers });
+      if (!Array.isArray(picks) || picks.length !== 26) {
+        return new Response(JSON.stringify({ error: "Selecione exatamente 26 jogadores." }), { status: 400, headers });
       }
       await store.setJSON(GABARITO_KEY, picks);
       return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
